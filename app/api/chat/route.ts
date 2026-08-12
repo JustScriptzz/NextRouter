@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";
+export async function POST(req:Request){const key=process.env.LITEROUTER_API_KEY;if(!key)return NextResponse.json({error:"AI access is not configured yet."},{status:503});const body=await req.json();const r=await fetch("https://api.literouter.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${key}`},body:JSON.stringify({model:body.model||"gpt-4o-mini:free",messages:body.messages||[],stream:false})});const data=await r.json();return NextResponse.json(data,{status:r.status});}
