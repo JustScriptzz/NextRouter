@@ -10,7 +10,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Set `LITEROUTER_API_KEY` for the complete live catalog. The UI intentionally presents a unified model experience rather than exposing upstream provider branding.
+The model catalog refreshes automatically from the active model sources. The UI presents a unified model experience rather than exposing upstream provider branding.
 
 ## Deploy
 

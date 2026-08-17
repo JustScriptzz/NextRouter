@@ -5,13 +5,6 @@ export const dynamic = "force-dynamic";
 type Message = { role: string; content: string };
 type Body = { model?: string; messages?: Message[] };
 
-const LITEROUTER_MODELS = new Set([
-  "deepseek-v4-flash-cheap:free:full-context", "gemini-2.5-flash:free", "gpt-oss-20b:free",
-  "l3-8b-lunaris:free", "llama-3-8b-instruct:free", "llama-3.1-8b-instruct:free",
-  "llama-3.3-70b-instruct-turbo:free", "ministral-3b-2512:free", "mistral-nemo-instruct-2407:free",
-  "mistral-small-24b-instruct-2501:free", "mythomax-l2-13b:free", "nemotron-3-nano:free"
-]);
-
 const UNIPOOL_BASE_URL = "https://scriptzz.duckdns.org/v1";
 
 function json(error: string, status = 500) {
@@ -34,20 +27,6 @@ async function unipool(model: string, messages: Message[]) {
   } catch {
     return json("Unable to reach UniPool.");
   }
-}
-
-async function literouter(model: string, messages: Message[]) {
-  const key = process.env.LITEROUTER_API_KEY;
-  if (!key) return json("LiteRouter is not configured.", 503);
-  try {
-    const r = await fetch("https://api.literouter.com/v1/chat/completions", {
-      method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, messages, stream: false }), cache: "no-store"
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) return json(data?.error?.message || data?.error || `LiteRouter returned ${r.status}`, r.status);
-    return NextResponse.json({ content: data?.choices?.[0]?.message?.content ?? "", provider: "literouter", model, usage: data?.usage ?? null });
-  } catch { return json("Unable to reach LiteRouter."); }
 }
 
 async function horde(model: string, messages: Message[]) {
@@ -89,8 +68,6 @@ export async function OPTIONS() {
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null) as Body | null;
   if (!body?.model || !Array.isArray(body.messages) || body.messages.length === 0) return json("A model and messages are required.", 400);
-  if (LITEROUTER_MODELS.has(body.model)) return literouter(body.model, body.messages);
-
   const key = process.env.UNIPOOL_API_KEY;
   if (key) {
     try {
