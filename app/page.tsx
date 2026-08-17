@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 type Model={id:string;name?:string}; type View='Overview'|'Playground'|'Models'|'Keys'|'Usage'|'Docs'; type KeyItem={id:string;key:string;created:string}; type EventItem={time:number;model:string;tokens:number;ok:boolean};
-const pretty=(m:Model)=>names[m.id]||m.name||m.id;
+const pretty=(m:Model)=>m.name||m.id;
 const keyStore='nextrouter.keys.v1', usageStore='nextrouter.usage.v1';
 export default function Home(){const[view,setView]=useState<View>('Overview'),[models,setModels]=useState<Model[]>([]),[model,setModel]=useState(''),[prompt,setPrompt]=useState(''),[reply,setReply]=useState(''),[busy,setBusy]=useState(false),[keys,setKeys]=useState<KeyItem[]>([]),[events,setEvents]=useState<EventItem[]>([]),[copied,setCopied]=useState(''),[doc,setDoc]=useState('Chat completions');
 useEffect(()=>{try{setKeys(JSON.parse(localStorage.getItem(keyStore)||'[]'));setEvents(JSON.parse(localStorage.getItem(usageStore)||'[]'))}catch{} const f=async()=>{try{const r=await fetch('/api/models',{cache:'no-store'}),d=await r.json();setModels(d.models||[]);setModel(x=>x||d.models?.[0]?.id||'')}catch{}};f();const t=setInterval(f,60000);return()=>clearInterval(t)},[]);
